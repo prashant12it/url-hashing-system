@@ -1,64 +1,84 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+#URL Hashing System
+## Architecture
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+I would choose to implement this URL hashing system as a REST API using the PHP Laravel framework. Laravel provides a great deal of built-in functionality for handling HTTP requests, routing, and database interactions, which will make it easier to build this application.
 
-## About Laravel
+The core of the URL hashing system will be a hash function that takes an input URL and generates a unique, shortened hash. This hash will be stored in a database along with the original URL. When a request is made for the hashed URL, the application will look up the original URL in the database and redirect the user to it.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+In order to track clicks, I will store the number of clicks for each hashed URL in the database and increment it every time the URL is accessed. I will also store the date the URL was created and when it was last clicked(accessed).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Setup
+1. Clone the repository to your local machine 
+`git clone https://github.com/prashant12it/url-hashing-system.git
+`
+2. Change into the newly created directory `cd url-hashing-system
+`
+3. Install dependencies `composer install
+`
+4. Copy the example environment file and configure your database settings `cp .env.example .env
+`
+5. Generate an application key `php artisan key:generate
+`
+6. Run database migrations `php artisan migrate
+`
+7. Start the development server `php artisan serve
+`
+## TODO
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Store hashed URLs and their metadata in a separate database table with appropriate access controls to make the generated URLs privacy-aware
+- Add tests for URL hashing functionality
+- Add authentication for accessing click tracking data
+- Implement expiration for hashed URLs
+- Implement UI for generating hashed URLs
+## Assumptions
+- The input URL does not contain any malicious characters that would break the hash function.
+- The target server is running PHP 7.4 or higher.
 
-## Learning Laravel
+## API Endpoints
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+The following endpoints will be available for the URL hashing system:
+### 1. Hash a URL
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**POST** `/generate-hash`
 
-## Laravel Sponsors
+**Request Body**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+`{
+     "url": "https://www.newsatic.com/news/proposed-changes-in-new-tax-regime/"
+ }
+`
 
-### Premium Partners
+**Response**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+`{
+     "hash": "http://127.0.0.1:8000/809efd"
+ }`
+ 
+ ### 2. Redirect to Original URL
+ 
+ **GET** `/{hashed_url}`
+ 
+ **Response**
+ 
+ Redirects to the original URL associated with the given hashed_url.
+ ### 3. Get Click Data
+ 
+ **GET** `/get-click-report/{hash}`
+ 
+ **Response**
+ 
+ `{
+      
+      "original_url": "https://www.newsatic.com/news/proposed-changes-in-new-tax-regime/",
+      "hash_url": "http://127.0.0.1:8000/809efd",
+      "total_clicks": 2,
+      "last_clicked": "2023-02-03 11:27:32"
+  }`
+## Deployment
 
-## Contributing
+Assuming you have a server with PHP and a web server (such as Apache or Nginx) installed, you can deploy the URL hashing system using the following steps:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Copy the contents of the url-hashing-system directory to your server.
+2. Configure your web server to serve the contents of the public directory as the document root.
+3. Set the necessary environment variables, such as the database connection settings, on the server.
+4. Run the necessary database migrations.
