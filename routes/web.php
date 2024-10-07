@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-/*Route::get('/', function () {
+Route::get('/', function () {
     return view('welcome');
-});*/
+});
 Route::post('/generate-hash',[UrlController::class, 'generateHash']);
 Route::get('/get-click-report/{hash}',[UrlController::class, 'getStatsForHash']);
 Route::get('/{hash}',[UrlController::class, 'redirect']);
